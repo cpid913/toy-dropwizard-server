@@ -23,3 +23,36 @@ jobs:
           ./gradlew build -x test
       - name: Run tests
         run: ./gradlew test
+
+  deploy:
+    needs: build-and-test
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove .git to prevent access issue
+        run: |
+          echo "Exclude .git..."
+          rm -rf .git
+          shell: bash
+      - name: Copy toy-drop to Cybera
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.KEY }}
+          source: "."
+          target: "~/prod"
+          overwrite: true
+      - name: Restart All Instances On Cybera
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.KEY }}
+          script: |
+            set -e
+            cd ~/prod
+            docker compose down
+            docker compose up --build -d
