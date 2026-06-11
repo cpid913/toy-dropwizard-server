@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "Exclude .git..."
           rm -rf .git
-          shell: bash
+        shell: bash
       - name: Copy toy-drop to Cybera
         uses: appleboy/scp-action@master
         with:
