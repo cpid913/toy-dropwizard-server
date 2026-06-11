@@ -1,12 +1,12 @@
 # Get the Gradle image so we can build JAR file first
-FROM gradle:7.0.2-jdk11 AS build
+FROM public.ecr.aws/docker/library/gradle:7.0-jdk11 AS build
 
 COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 RUN gradle shadowJar
 
 # Get the Java version 8 image
-FROM eclipse-temurin:11-jre
+FROM public.ecr.aws/docker/library/eclipse-temurin:21
 
 WORKDIR /app
 COPY --from=build /home/gradle/src/build/libs/hello-friends-1.0-SNAPSHOT.jar /app
